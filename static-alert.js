@@ -19,24 +19,25 @@ customElements.define('static-alert', StaticAlert);
 
 // ↓ Add this block ↓
 (function () {
-  function init() {
+  function createStaticAlertOnce() {
     const Ctor = customElements.get('static-alert');
-    if (!Ctor) return;
+    if (!Ctor) {
+      console.error('[static-alert.js] static-alert not registered');
+      return;
+    }
 
-    const els = document.querySelectorAll('static-alert');
-    els.forEach((el) => {
-      const inst = new Ctor();
-      // copy any attributes if needed
-      for (const attr of el.attributes) {
-        inst.setAttribute(attr.name, attr.value);
-      }
-      el.replaceWith(inst); // <-- put instance exactly where the placeholder was
-    });
+    if (document.querySelector('static-alert[data-auto-instantiated="true"]')) {
+      return;
+    }
+
+    const inst = new Ctor();
+    inst.setAttribute('data-auto-instantiated', 'true');
+    document.body.appendChild(inst);
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', createStaticAlertOnce);
   } else {
-    init();
+    createStaticAlertOnce();
   }
 })();
